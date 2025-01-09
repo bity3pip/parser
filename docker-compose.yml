@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: ./crunchbase_parser
+    container_name: fastapi_app
+    volumes:
+      - ./crunchbase_parser:/crunchbase_parser
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - dev
+
+networks:
+  dev:
+    driver: bridge
