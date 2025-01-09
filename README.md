@@ -3,7 +3,7 @@
 $ pip install -r requirements.txt
 ```
 
-## Build&Run docker-compose. But now don't have docker
+## Build&Run docker-compose. 
 ```console
 $ docker-compose build
 $ docker-compose up      
