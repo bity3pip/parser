@@ -1,26 +1,42 @@
-# Используем Python как базовый образ
 FROM python:3.12-slim
 
-# Устанавливаем зависимости для Chrome
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Устанавливаем рабочую директорию для контейнера
+WORKDIR /crunchbase_parser
+
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y \
-    wget unzip curl \
-    libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
-    libxrandr2 libxss1 libasound2 libxdamage1 libgbm1 \
-    libgtk-3-0 libxcomposite1 libxi6 libxcursor1 libxinerama1 \
-    chromium chromium-driver \
+    build-essential \
+    libffi-dev \
+    libssl-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    zlib1g-dev \
+    curl \
+    wget \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Python-зависимости
-COPY requirements.txt /temp/requirements.txt
+# Копируем requirements.txt
+COPY crunchbase_parser/requirements.txt /crunchbase_parser/
+
+# Установка зависимостей Python
 RUN pip install --upgrade pip
-RUN pip install -r /temp/requirements.txt
+RUN pip install -r /crunchbase_parser/requirements.txt
 
-# Копируем приложение
-WORKDIR /crunchbase_parser
-COPY . /crunchbase_parser
+# Установка ChromeDriver
+RUN wget https://chromedriver.storage.googleapis.com/$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    mv chromedriver /usr/local/bin/ && \
+    rm chromedriver_linux64.zip
 
-# Устанавливаем порт для FastAPI
+# Копируем проект
+COPY crunchbase_parser /crunchbase_parser
+
+# Открытие порта
 EXPOSE 8000
 
 # Запуск приложения
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "crunchbase_parser.api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

@@ -13,7 +13,7 @@ class WebParserSelenium:
 
     def _initialize_driver(self):
         chrome_options = Options()
-        # chrome_options.add_argument("--headless")
+        #chrome_options.add_argument("--headless")
         chrome_options.add_argument("--ignore-certificate-errors")
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--no-sandbox")
@@ -38,12 +38,20 @@ class WebParserSelenium:
             chips_container = soup.find("chips-container")
             if chips_container:
                 chip_texts = chips_container.find_all("div", class_="chip-text")
-                if chip_texts:
-                    return [chip.text.strip() for chip in chip_texts]
+                return [chip.text.strip() for chip in chip_texts]
             return ["Индустрия не найдена"]
         except Exception as e:
             print(f"Ошибка при парсинге {url}: {str(e)}")
-            return f"Ошибка при парсинге {url}: {str(e)}"
-        finally:
-            if self.driver:
-                self.driver.quit()
+            return [f"Ошибка при парсинге {url}: {str(e)}"]
+
+    def fetch_data_multiple_pages(self, urls):
+        if not self.driver:
+            self._initialize_driver()
+
+        all_results = {}
+        for url in urls:
+            results = self.fetch_data(url)
+            all_results[url] = results
+
+        self.driver.quit()
+        return all_results

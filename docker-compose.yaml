@@ -1,0 +1,11 @@
+services:
+  fastapi-app:
+    build:
+      context: .
+      dockerfile: crunchbase_parser/Dockerfile
+    volumes:
+      - .:/crunchbase_parser
+    working_dir: /crunchbase_parser/
+    ports:
+        - "8000:8000"
+    command: uvicorn crunchbase_parser.api.app:app --host 0.0.0.0 --port 8000 --reload
