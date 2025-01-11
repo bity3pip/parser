@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   fastapi-app:
     build:
@@ -5,7 +7,10 @@ services:
       dockerfile: crunchbase_parser/Dockerfile
     volumes:
       - .:/crunchbase_parser
-    working_dir: /crunchbase_parser/
+    working_dir: /crunchbase_parser/crunchbase_parser
+    environment:
+      - PYTHONPATH=/crunchbase_parser/crunchbase_parser
     ports:
-        - "8000:8000"
-    command: uvicorn crunchbase_parser.api.app:app --host 0.0.0.0 --port 8000 --reload
+      - "8000:8000"
+    command: uvicorn api.app:app --host 0.0.0.0 --port 8000 --reload
+    privileged: true
