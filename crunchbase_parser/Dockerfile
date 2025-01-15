@@ -3,8 +3,6 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /crunchbase_parser/crunchbase_parser
-
 RUN dpkg --add-architecture amd64 \
     && apt-get update && apt-get install -y \
     wget \
@@ -27,13 +25,14 @@ RUN dpkg --add-architecture amd64 \
     && chmod +x /usr/local/bin/chromedriver \
     && rm chromedriver_linux64.zip
 
-COPY crunchbase_parser/requirements.txt /crunchbase_parser/crunchbase_parser/
+COPY requirements.txt /temp/requirements.txt
+COPY . /crunchbase_parser
 
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir -r /crunchbase_parser/crunchbase_parser/requirements.txt
-
-COPY crunchbase_parser /crunchbase_parser/crunchbase_parser
+WORKDIR /crunchbase_parser
 
 EXPOSE 8000
+
+RUN pip install --upgrade pip
+RUN pip install -r /temp/requirements.txt
 
 CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

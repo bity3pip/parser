@@ -1,22 +1,9 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
-from parser.selenium_parser import WebParserSelenium
+from api.routers.parser import router as parser_router
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+app.include_router(router=parser_router, prefix="/parser")
 
-
-class UrlsRequest(BaseModel):
-    urls: List[str]
-
-
-@app.post("/parse/")
-async def parse_urls(request: UrlsRequest):
-    parser = WebParserSelenium()
-
-    results = {}
-    for url in request.urls:
-        data = parser.fetch_data(url)
-        results[url] = data
-
-    return {"results": results}
+MEDIA_ROOT = "/crunchbase_parser/shared_storage"
+app.mount("/media", StaticFiles(directory=MEDIA_ROOT, html=False), name="media")

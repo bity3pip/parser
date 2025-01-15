@@ -1,16 +1,43 @@
-version: '3.8'
+networks:
+  dev:
 
 services:
-  fastapi-app:
-    build:
-      context: .
-      dockerfile: crunchbase_parser/Dockerfile
-    volumes:
-      - .:/crunchbase_parser
-    working_dir: /crunchbase_parser/crunchbase_parser
+  db:
+    profiles: [ 'local_db', 'tests' ]
+    image: postgres
     environment:
-      - PYTHONPATH=/crunchbase_parser/crunchbase_parser
+      - POSTGRES_HOST='db'
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - dev
+    env_file:
+      - .env
+
+
+  fastapi-app:
+    profiles: [ '', 'local_db' ]
+    build:
+      context: ./crunchbase_parser
+    volumes:
+      - .:/crunchbase_parser/crunchbase_parser
+      - shared_volume:/crunchbase_parser/shared_storage
     ports:
       - "8000:8000"
     command: uvicorn api.app:app --host 0.0.0.0 --port 8000 --reload
-    privileged: true
+    networks:
+      - dev
+    env_file:
+      - .env
+
+volumes:
+  postgres_data:
+  shared_volume:
