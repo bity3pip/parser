@@ -28,11 +28,11 @@ services:
     build:
       context: ./crunchbase_parser
     volumes:
-      - .:/crunchbase_parser/crunchbase_parser
+      - ./crunchbase_parser:/crunchbase_parser
       - shared_volume:/crunchbase_parser/shared_storage
     ports:
-      - "8000:8000"
-    command: uvicorn api.app:app --host 0.0.0.0 --port 8000 --reload
+      - "8006:8006"
+    command: uvicorn api.app:app --host 0.0.0.0 --port 8006 --reload
     networks:
       - dev
     env_file:

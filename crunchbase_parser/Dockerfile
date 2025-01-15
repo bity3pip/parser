@@ -30,9 +30,9 @@ COPY . /crunchbase_parser
 
 WORKDIR /crunchbase_parser
 
-EXPOSE 8000
+EXPOSE 8006
 
 RUN pip install --upgrade pip
 RUN pip install -r /temp/requirements.txt
 
-CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "api.app:app", "--host", "0.0.0.0", "--port", "8006", "--reload"]

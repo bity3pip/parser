@@ -21,7 +21,6 @@ class WebParserSelenium:
         self._data = data
         self.num_threads = num_threads
 
-
     def _initialize_driver(self):
         chrome_options = Options()
         chrome_options.add_argument("--headless=new")
@@ -37,8 +36,6 @@ class WebParserSelenium:
         chrome_options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36")
 
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-
 
     def fetch_data(self, url: str) -> list:
         try:
@@ -63,50 +60,25 @@ class WebParserSelenium:
             print(f"Parsing error: {str(e)}")
             return [f"Parsing error: {str(e)}"]
 
-    def fetch_data_multiple_pages(self, urls):
-        if not self.driver:
-            self._initialize_driver()
-
-        all_results = {}
-        for url in urls:
-            results = self.fetch_data(url)
-            all_results[url] = results
-
-        self.driver.quit()
-        return all_results
-
     def _process_row(self, row):
-        local_results = {}
         uuid = row.get("uuid", "").strip()
-        urls = row.get("urls", "").strip()
+        url = row.get("cb_url", "").strip()
+        industries = []
 
-        if urls:
-            print(f"Processing {urls}")
-            industries = self.fetch_data_multiple_pages(urls)
-            if industries:
-                for industry in industries:
-                    if uuid in local_results:
-                        local_results[uuid].add(industry)
-                    else:
-                        local_results[uuid] = {industry}
-        return local_results
+        if url:
+            industries = self.fetch_data(url)
+        return uuid, industries
 
     def process_csv(self):
-        local_results_list = []
         with ThreadPoolExecutor(max_workers=self.num_threads) as executor:
-            future_to_row = {executor.submit(self._process_row, row): row for row in self._data}
+            futures = [executor.submit(self._process_row, row) for row in self._data]
 
-            for future in as_completed(future_to_row):
+            for future in as_completed(futures):
                 try:
-                    local_results = future.result()
-                    local_results_list.append(local_results)
-                except Exception as e:
-                    row = future_to_row[future]
-                    print(f"Error processing row {row}: {e}")
-
-        for local_results in local_results_list:
-            for uuid, industries in local_results.items():
-                if uuid in self.results:
-                    self.results[uuid].update(industries)
-                else:
+                    uuid, industries = future.result()
                     self.results[uuid] = industries
+                except Exception as e:
+                    print(f"Error processing row: {e}")
+
+    def get_result(self):
+        return [{"uuid": uuid, "industry": ", ".join(industries)} for uuid, industries in self.results.items()]

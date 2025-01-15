@@ -1,7 +1,6 @@
 import csv
 from abc import ABC, abstractmethod
 
-
 class BaseCSVReader(ABC):
     def __init__(self, file_path, row_name):
         self.file_path = file_path
@@ -10,7 +9,6 @@ class BaseCSVReader(ABC):
     @abstractmethod
     def read_file(self, **kwargs):
         pass
-
 
 class CSVReader(BaseCSVReader):
     def __init__(self, row_name, file_path):

@@ -1,7 +1,6 @@
 import csv
 from abc import ABC, abstractmethod
 
-
 class BaseIndustrySaver(ABC):
     def __init__(self, output_file: str, data):
         self.output_file = output_file
@@ -10,7 +9,6 @@ class BaseIndustrySaver(ABC):
     @abstractmethod
     def save_result(self):
         pass
-
 
 class IndustrySaver(BaseIndustrySaver):
     def __init__(self, output_file: str, data):
@@ -26,4 +24,3 @@ class IndustrySaver(BaseIndustrySaver):
             for k, v in self._data.items():
                 for industry in v:
                     writer.writerow({"uuid": k, "industry": industry})
-
