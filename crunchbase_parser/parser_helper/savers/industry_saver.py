@@ -21,6 +21,5 @@ class IndustrySaver(BaseIndustrySaver):
             writer = csv.DictWriter(summary_file, fieldnames=fieldnames)
             writer.writeheader()
 
-            for k, v in self._data.items():
-                for industry in v:
-                    writer.writerow({"uuid": k, "industry": industry})
+            for row in self._data:
+                writer.writerow(row)

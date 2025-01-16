@@ -5,21 +5,20 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.db.config import Base
 
-websiteinfo_industry = Table(
-    'websiteinfo_industry',
+file_loader_websiteinfo_industry = Table(
+    'file_loader_websiteinfo_industry',
     Base.metadata,
-    Column('websiteinfo_id', ForeignKey('file_loader_websiteinfo.id'), primary_key=True),
+    Column('websiteinfo_id', ForeignKey('file_loader_websiteinfo.uuid'), primary_key=True),
     Column('companyindustry_id', ForeignKey('file_loader_companyindustry.id'), primary_key=True)
 )
 
 class WebsiteInfo(Base):
     __tablename__ = "file_loader_websiteinfo"
-    id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    uuid = Column(PgUUID(as_uuid=True), unique=True, nullable=False, default=uuid.uuid4)
+    uuid = Column(PgUUID(as_uuid=True), primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
 
     industry = relationship(
         'CompanyIndustry',
-        secondary=websiteinfo_industry
+        secondary=file_loader_websiteinfo_industry
     )
 
 class CompanyIndustry(Base):
